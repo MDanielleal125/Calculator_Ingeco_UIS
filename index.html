@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3ed">
+  <title>Financia | Ingeniería Económica</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      color-scheme: light;
+      --paper: #f4f3ed;
+      --surface: #fffefa;
+      --ink: #182823;
+      --muted: #68736c;
+      --line: #dfe3da;
+      --green: #1d6047;
+      --green-dark: #164735;
+      --green-soft: #e7f0e9;
+      --lime: #d5ef72;
+      --coral: #db684d;
+      --mono: 'DM Mono', 'Courier New', monospace;
+      --sans: 'DM Sans', 'Segoe UI', sans-serif;
+      --display: 'Manrope', 'Segoe UI', sans-serif;
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { min-height: 100vh; }
+    .topbar {
+      height: 68px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(20px, 5vw, 72px); border-bottom: 1px solid var(--line);
+      background: rgba(255, 254, 250, .78);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font: 800 18px var(--display); letter-spacing: 0; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; background: var(--green); color: var(--lime); font: 500 17px var(--mono); }
+    .top-meta { display: flex; align-items: center; gap: 10px; color: var(--muted); font: 11px var(--mono); text-transform: uppercase; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #5a9f65; box-shadow: 0 0 0 3px #e4f1e2; }
+    main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 44px 0 72px; }
+    .intro { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+    .eyebrow { color: var(--green); font: 500 11px var(--mono); letter-spacing: 0; text-transform: uppercase; }
+    h1 { margin: 9px 0 7px; font: 700 clamp(25px, 3.4vw, 38px)/1.12 var(--display); letter-spacing: 0; }
+    .intro p { margin: 0; color: var(--muted); font-size: 14px; }
+    .date-tag { flex: 0 0 auto; border: 1px solid var(--line); padding: 10px 12px; color: var(--muted); font: 11px var(--mono); }
+    .workspace { display: grid; grid-template-columns: 228px minmax(0, 1fr); min-height: 525px; border: 1px solid var(--line); background: var(--surface); }
+    .rail { padding: 20px 12px; border-right: 1px solid var(--line); background: #fafaf5; }
+    .rail-label { padding: 0 10px; margin: 0 0 10px; color: #8a938b; font: 10px var(--mono); letter-spacing: 0; text-transform: uppercase; }
+    .nav-item { display: flex; width: 100%; align-items: center; gap: 11px; padding: 11px 10px; border: 0; border-radius: 3px; background: transparent; color: #58655d; text-align: left; font-size: 13px; }
+    .nav-item:hover { background: #eef1e9; }
+    .nav-item.active { background: var(--green); color: white; }
+    .nav-icon { width: 21px; color: var(--green); font: 12px var(--mono); text-align: center; }
+    .nav-item.active .nav-icon { color: var(--lime); }
+    .rail-note { margin: 28px 10px 0; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .rail-note strong { display: block; margin-bottom: 5px; color: var(--ink); font-size: 11px; }
+    .panel { min-width: 0; }
+    .view { display: none; padding: clamp(22px, 4vw, 42px); animation: reveal .25s ease both; }
+    .view.active { display: block; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .view-heading { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin-bottom: 28px; }
+    h2 { margin: 0 0 6px; font: 700 21px var(--display); letter-spacing: 0; }
+    .view-heading p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .step-label { padding: 7px 9px; background: var(--green-soft); color: var(--green); font: 10px var(--mono); white-space: nowrap; }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
+    .field { min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    label { display: block; margin: 0 0 7px; color: #425148; font-size: 12px; font-weight: 600; }
+    .hint { margin-left: 5px; color: #879087; font: 10px var(--mono); font-weight: 400; }
+    input, select { width: 100%; height: 42px; border: 1px solid #d7ddd5; border-radius: 2px; outline: none; background: #fff; color: var(--ink); padding: 0 12px; font-size: 13px; }
+    input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 2px #1d60471a; }
+    input::placeholder { color: #a3aaa4; }
+    .unit-wrap { position: relative; }
+    .unit-wrap input { padding-right: 52px; }
+    .unit { position: absolute; top: 13px; right: 11px; color: #879087; font: 10px var(--mono); pointer-events: none; }
+    .field-help { margin: 6px 0 0; color: #828b83; font-size: 10px; line-height: 1.45; }
+    .choice-row { display: flex; gap: 8px; }
+    .choice { position: relative; flex: 1; }
+    .choice input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .choice span { display: grid; min-height: 42px; place-items: center; padding: 8px; border: 1px solid #d7ddd5; color: #58655d; font-size: 12px; text-align: center; cursor: pointer; }
+    .choice input:checked + span { border-color: var(--green); background: var(--green-soft); color: var(--green-dark); }
+    .actions { display: flex; align-items: center; gap: 14px; margin-top: 27px; }
+    .primary { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 43px; padding: 0 17px; border: 0; border-radius: 2px; background: var(--green); color: white; font-size: 13px; font-weight: 600; }
+    .primary:hover { background: var(--green-dark); }
+    .primary .arrow { color: var(--lime); font: 15px var(--mono); }
+    .quiet { border: 0; background: transparent; color: var(--muted); font-size: 12px; }
+    .result { display: none; margin-top: 25px; border-top: 1px solid var(--line); padding-top: 21px; }
+    .result.show { display: block; animation: reveal .2s ease both; }
+    .result-top { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+    .result-label { color: var(--muted); font: 10px var(--mono); text-transform: uppercase; }
+    .result-value { margin-top: 7px; color: var(--green-dark); font: 700 clamp(25px, 4vw, 36px) var(--display); letter-spacing: 0; overflow-wrap: anywhere; }
+    .result-unit { color: var(--muted); font: 11px var(--mono); }
+    .result-detail { margin-top: 13px; padding: 11px 12px; border-left: 2px solid var(--lime); background: #f6f7f0; color: #536057; font-size: 11px; line-height: 1.6; }
+    .error { display: none; margin-top: 14px; padding: 10px 12px; border-left: 2px solid var(--coral); background: #fff1ed; color: #9c432e; font-size: 12px; line-height: 1.5; }
+    .error.show { display: block; }
+    .hidden { display: none !important; }
+    .validation-intro { max-width: 670px; }
+    .validation-list { display: grid; gap: 10px; }
+    .validation-item { display: grid; grid-template-columns: 37px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 15px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+    .validation-item:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+    .validation-num { display: grid; width: 30px; height: 30px; place-items: center; background: var(--green-soft); color: var(--green); font: 12px var(--mono); }
+    .validation-item h3 { margin: 1px 0 5px; font: 600 13px var(--display); }
+    .validation-item p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .validation-values { display: grid; grid-template-columns: repeat(2, minmax(110px, 1fr)); gap: 8px 14px; margin-top: 11px; }
+    .validation-values span { display: block; color: #879087; font: 9px var(--mono); text-transform: uppercase; }
+    .validation-values strong { display: block; margin-top: 3px; color: var(--ink); font: 11px var(--mono); }
+    .pass { display: flex; align-items: center; gap: 6px; color: var(--green); font: 10px var(--mono); white-space: nowrap; }
+    .pass::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #5a9f65; }
+    .matrix-wrap { margin-top: 22px; overflow-x: auto; border: 1px solid var(--line); }
+    table { width: 100%; border-collapse: collapse; background: white; text-align: left; font-size: 11px; }
+    th { background: #f2f4ed; color: #526057; font: 10px var(--mono); text-transform: uppercase; }
+    th, td { padding: 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    tbody tr:last-child td { border-bottom: 0; }
+    td.num { font-family: var(--mono); }
+    .guide { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .guide section { padding: 16px; border: 1px solid var(--line); background: white; }
+    .guide h3 { margin: 0 0 8px; font: 600 13px var(--display); }
+    .guide p, .guide li { color: var(--muted); font-size: 11px; line-height: 1.65; }
+    .guide p { margin: 0; }
+    .guide ul { margin: 0; padding-left: 17px; }
+    .formula { margin-top: 9px; padding: 9px; background: #f4f6ef; color: var(--green-dark); font: 11px/1.6 var(--mono); overflow-wrap: anywhere; }
+    footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 15px; color: #818a82; font: 10px var(--mono); }
+
+    @media (max-width: 760px) {
+      main { width: min(100% - 28px, 600px); padding-top: 29px; }
+      .intro { align-items: start; }
+      .date-tag { display: none; }
+      .workspace { grid-template-columns: 1fr; }
+      .rail { display: flex; gap: 5px; overflow-x: auto; padding: 9px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .rail-label, .rail-note { display: none; }
+      .nav-item { flex: 0 0 auto; width: auto; padding: 10px; white-space: nowrap; }
+      .nav-icon { width: 16px; }
+      .view { padding: 22px 18px 25px; }
+    }
+    @media (max-width: 480px) {
+      .topbar { height: 58px; padding: 0 16px; }
+      .top-meta { font-size: 9px; }
+      main { width: calc(100% - 24px); }
+      .intro p { max-width: 290px; line-height: 1.5; }
+      .field-grid, .guide { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .view-heading { margin-bottom: 21px; }
+      .step-label { font-size: 9px; }
+      .validation-item { grid-template-columns: 30px minmax(0, 1fr); gap: 10px; }
+      .validation-item > .pass { grid-column: 2; }
+      .validation-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      footer { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">f.</span> financia</div>
+      <div class="top-meta"><span class="status-dot" aria-hidden="true"></span> Herramienta académica <span aria-hidden="true">/</span> Ing. económica</div>
+    </header>
+
+    <main>
+      <div class="intro">
+        <div><div class="eyebrow">Laboratorio financiero <span aria-hidden="true">/</span> 01</div><h1>Calculadora financiera</h1><p>Equivalencias, tasas y anualidades con periodicidades explícitas.</p></div>
+        <div class="date-tag">COP <span aria-hidden="true">·</span> TASAS EFECTIVAS</div>
+      </div>
+
+      <div class="workspace">
+        <aside class="rail" aria-label="Navegación principal">
+          <div class="rail-label">Herramientas</div>
+          <button class="nav-item active" type="button" data-view="calculator"><span class="nav-icon" aria-hidden="true">01</span> Calculadora</button>
+          <button class="nav-item" type="button" data-view="validation"><span class="nav-icon" aria-hidden="true">02</span> Validaciones <span id="validation-count" class="hint"></span></button>
+          <button class="nav-item" type="button" data-view="guide"><span class="nav-icon" aria-hidden="true">03</span> Guía y fórmulas</button>
+          <div class="rail-note"><strong>Convención activa</strong>Las tasas y los pagos comparten periodicidad. El resultado indica siempre la variable calculada.</div>
+        </aside>
+
+        <section class="panel">
+          <section class="view active" id="calculator-view" aria-labelledby="calc-heading">
+            <div class="view-heading">
+              <div><h2 id="calc-heading">Nueva operación</h2><p>Selecciona un módulo y completa los datos conocidos.</p></div>
+              <span class="step-label">CÁLCULO · 01</span>
+            </div>
+            <form id="calc-form" novalidate>
+              <div class="field-grid">
+                <div class="field full"><label for="operation">Operación financiera</label><select id="operation" name="operation">
+                  <optgroup label="Interés compuesto"><option value="compound-fv">Valor futuro</option><option value="compound-pv">Valor presente</option><option value="compound-rate">Tasa efectiva por periodo</option><option value="compound-periods">Número de periodos</option></optgroup>
+                  <optgroup label="Tasas"><option value="rate-convert">Conversión de tasas</option><option value="rate-index">Indexación DTF, IBR, IPC o UVR</option></optgroup>
+                  <optgroup label="Anualidades"><option value="annuity-pv">Valor presente</option><option value="annuity-fv">Valor futuro</option><option value="annuity-payment">Cuota periódica</option><option value="annuity-periods">Número de periodos</option></optgroup>
+                  <optgroup label="Perpetuidad"><option value="perpetuity-capital">Capital requerido</option><option value="perpetuity-payment">Pago sostenible</option></optgroup>
+                </select></div>
+                <div class="field" data-for="compound-fv compound-pv compound-rate compound-periods annuity-pv annuity-fv annuity-payment annuity-periods perpetuity-capital perpetuity-payment"><label for="periodicity">Periodicidad de tasa y pagos</label><select id="periodicity"><option value="1">Anual</option><option value="2">Semestral</option><option value="4">Trimestral</option><option value="6">Bimestral</option><option value="12" selected>Mensual</option><option value="24">Quincenal</option><option value="365">Diaria</option></select></div>
+
+                <div class="field" data-for="compound-fv compound-rate compound-periods annuity-payment"><label for="amount">Valor presente <span class="hint">VP · COP</span></label><div class="unit-wrap"><input id="amount" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 10000000"><span class="unit">COP</span></div></div>
+                <div class="field" data-for="compound-pv compound-rate compound-periods"><label for="compound-future">Valor futuro <span class="hint">VF · COP</span></label><div class="unit-wrap"><input id="compound-future" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 12000000"><span class="unit">COP</span></div></div>
+                <div class="field" data-for="compound-fv compound-pv compound-periods annuity-pv annuity-fv annuity-payment annuity-periods"><label for="rate">Tasa efectiva por periodo</label><div class="unit-wrap"><input id="rate" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 1.5"><span class="unit" id="rate-unit">% / mes</span></div></div>
+                <div class="field" data-for="compound-fv compound-pv compound-rate annuity-fv annuity-payment"><label for="periods">Número de periodos</label><div class="unit-wrap"><input id="periods" inputmode="decimal" type="number" step="1" min="1" placeholder="p. ej. 24"><span class="unit" id="periods-unit">meses</span></div><p class="field-help">La cuota y la tasa deben tener la misma periodicidad.</p></div>
+
+                <div class="field" data-for="annuity-pv annuity-fv annuity-payment annuity-periods"><label>Momento de pago</label><div class="choice-row"><label class="choice"><input type="radio" name="timing" value="ordinary" checked><span>Vencida</span></label><label class="choice"><input type="radio" name="timing" value="due"><span>Anticipada</span></label></div></div>
+                <div class="field" data-for="annuity-fv annuity-payment annuity-periods"><label for="payment">Cuota periódica <span class="hint">A · COP</span></label><div class="unit-wrap"><input id="payment" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 500000"><span class="unit" id="payment-unit">COP / mes</span></div></div>
+                <div class="field" data-for="annuity-pv"><label for="annuity-payment-pv">Cuota periódica <span class="hint">A · COP</span></label><div class="unit-wrap"><input id="annuity-payment-pv" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 300000"><span class="unit" id="payment-pv-unit">COP / mes</span></div></div>
+                <div class="field" data-for="annuity-pv"><label for="annuity-periods-pv">Número de periodos</label><div class="unit-wrap"><input id="annuity-periods-pv" inputmode="decimal" type="number" step="1" min="1" placeholder="p. ej. 12"><span class="unit" id="periods-pv-unit">meses</span></div></div>
+                <div class="field" data-for="annuity-periods"><label for="annuity-target">Valor objetivo <span class="hint">VP o VF · COP</span></label><div class="unit-wrap"><input id="annuity-target" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 5000000"><span class="unit">COP</span></div><p class="field-help">Define si el objetivo es valor presente o futuro.</p></div>
+                <div class="field" data-for="annuity-periods"><label for="target-kind">Tipo de valor objetivo</label><select id="target-kind"><option value="pv">Valor presente</option><option value="fv">Valor futuro</option></select></div>
+
+                <div class="field" data-for="perpetuity-capital"><label for="perpetuity-payment">Pago perpetuo <span class="hint">A · COP</span></label><div class="unit-wrap"><input id="perpetuity-payment" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 800000"><span class="unit" id="perpetuity-payment-unit">COP / mes</span></div></div>
+                <div class="field" data-for="perpetuity-payment"><label for="capital">Capital disponible <span class="hint">VP · COP</span></label><div class="unit-wrap"><input id="capital" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 20000000"><span class="unit">COP</span></div></div>
+                <div class="field" data-for="perpetuity-capital perpetuity-payment"><label for="perpetuity-rate">Tasa efectiva del periodo</label><div class="unit-wrap"><input id="perpetuity-rate" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 2"><span class="unit" id="perpetuity-rate-unit">% / mes</span></div><p class="field-help">El pago y la tasa deben compartir periodicidad.</p></div>
+
+                <div class="field" data-for="rate-convert"><label for="rate-input">Tasa de origen <span class="hint">% anual</span></label><div class="unit-wrap"><input id="rate-input" inputmode="decimal" type="number" step="any" placeholder="p. ej. 24"><span class="unit">% EA o NA</span></div></div>
+                <div class="field" data-for="rate-convert"><label for="rate-kind">Convención de origen</label><select id="rate-kind"><option value="ea">Efectiva anual (EA)</option><option value="na">Nominal anual (NA)</option></select></div>
+                <div class="field" data-for="rate-convert"><label for="source-frequency">Capitalizaciones al año <span class="hint">solo NA</span></label><select id="source-frequency"><option value="1">1 · anual</option><option value="2">2 · semestral</option><option value="4">4 · trimestral</option><option value="6">6 · bimestral</option><option value="12" selected>12 · mensual</option><option value="24">24 · quincenal</option><option value="52">52 · semanal</option><option value="365">365 · diaria</option></select></div>
+                <div class="field" data-for="rate-convert"><label for="target-frequency">Periodos al año de destino</label><select id="target-frequency"><option value="1">1 · anual</option><option value="2">2 · semestral</option><option value="4">4 · trimestral</option><option value="6">6 · bimestral</option><option value="12" selected>12 · mensual</option><option value="24">24 · quincenal</option><option value="52">52 · semanal</option><option value="365">365 · diaria</option></select></div>
+                <div class="field" data-for="rate-convert"><label for="rate-output-kind">Convención de destino</label><select id="rate-output-kind"><option value="periodic">Efectiva por periodo</option><option value="ea">Efectiva anual (EA)</option><option value="na">Nominal anual (NA)</option></select></div>
+
+                <div class="field" data-for="rate-index"><label for="index-type">Índice</label><select id="index-type"><option>DTF</option><option>IBR</option><option>IPC</option><option>UVR</option></select></div>
+                <div class="field" data-for="rate-index"><label for="index-rate">Tasa efectiva del índice</label><div class="unit-wrap"><input id="index-rate" inputmode="decimal" type="number" step="any" placeholder="p. ej. 8.5"><span class="unit">%</span></div><p class="field-help">Se usa cuando no ingresas valores UVR inicial y final.</p></div>
+                <div class="field" data-for="rate-index"><label for="index-base-frequency">Periodicidad de la tasa índice</label><select id="index-base-frequency"><option value="1">Efectiva anual (EA)</option><option value="2">Efectiva semestral</option><option value="4">Efectiva trimestral</option><option value="6">Efectiva bimestral</option><option value="12" selected>Efectiva mensual</option><option value="24">Efectiva quincenal</option><option value="365">Efectiva diaria</option></select><p class="field-help">Se convierte a E.A. antes de aplicar el margen y la conversión de salida.</p></div>
+                <div class="field" data-for="rate-index" id="uvr-fields"><label for="uvr-start">UVR inicial</label><input id="uvr-start" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 350.00"></div>
+                <div class="field" data-for="rate-index" id="uvr-end-field"><label for="uvr-end">UVR final</label><input id="uvr-end" inputmode="decimal" type="number" step="any" min="0" placeholder="p. ej. 364.00"></div>
+                <div class="field" data-for="rate-index"><label for="spread">Margen / spread <span class="hint">% EA</span></label><div class="unit-wrap"><input id="spread" inputmode="decimal" type="number" step="any" placeholder="p. ej. 3"><span class="unit">%</span></div></div>
+                <div class="field" data-for="rate-index"><label for="index-method">Combinación de tasas</label><select id="index-method"><option value="compound">Compuesta: (1 + índice)(1 + margen) − 1</option><option value="add">Aditiva: índice + margen</option></select><p class="field-help">Confirma con el procedimiento de indexación indicado en clase.</p></div>
+                <div class="field" data-for="rate-index"><label for="index-frequency">Periodos al año de destino</label><select id="index-frequency"><option value="1">1 · anual</option><option value="2">2 · semestral</option><option value="4">4 · trimestral</option><option value="6">6 · bimestral</option><option value="12" selected>12 · mensual</option><option value="24">24 · quincenal</option><option value="52">52 · semanal</option><option value="365">365 · diaria</option></select></div>
+              </div>
+              <div class="error" id="error-message" role="alert"></div>
+              <div class="actions"><button class="primary" type="submit">Calcular <span class="arrow" aria-hidden="true">→</span></button><button class="quiet" type="reset">Limpiar datos</button></div>
+              <div class="result" id="result" aria-live="polite"><div class="result-top"><div><div class="result-label" id="result-label">Resultado</div><div class="result-value" id="result-value"></div></div><div class="result-unit" id="result-unit"></div></div><div class="result-detail" id="result-detail"></div></div>
+            </form>
+          </section>
+
+          <section class="view" id="validation-view" aria-labelledby="validation-heading">
+            <div class="view-heading"><div class="validation-intro"><h2 id="validation-heading">Cinco pruebas de validación</h2><p>Casos resueltos con sus relaciones financieras y contrastados con el resultado del módulo. La diferencia se informa con precisión de centavos.</p></div><span class="step-label" id="validation-status">0 / 5 VALIDADAS</span></div>
+            <div class="validation-list" id="validation-list"></div>
+            <div class="matrix-wrap"><table><thead><tr><th>Prueba</th><th>Módulo validado</th><th>Independiente</th><th>Calculadora</th><th>Diferencia</th><th>Validado</th></tr></thead><tbody id="validation-matrix"></tbody></table></div>
+          </section>
+
+          <section class="view" id="guide-view" aria-labelledby="guide-heading">
+            <div class="view-heading"><div><h2 id="guide-heading">Guía y fórmulas</h2><p>Convenciones del modelo y relaciones empleadas por cada módulo.</p></div><span class="step-label">REFERENCIA</span></div>
+            <div class="guide">
+              <section><h3>Interés compuesto</h3><p>La tasa efectiva por periodo y el número de periodos deben usar la misma unidad temporal.</p><div class="formula">VF = VP(1 + i)^n<br>VP = VF / (1 + i)^n<br>i = (VF / VP)^(1/n) − 1<br>n = ln(VF / VP) / ln(1 + i)</div></section>
+              <section><h3>Conversión de tasas</h3><p>Se convierte a efectiva anual y luego a la periodicidad de destino. Para tasas nominales, se usa la capitalización declarada.</p><div class="formula">EA = (1 + j/m)^m − 1<br>iₚ = (1 + EA)^(1/p) − 1<br>jₚ = p · iₚ</div></section>
+              <section><h3>Indexación</h3><p>El índice y el margen se interpretan como tasas efectivas anuales. En UVR, la variación se obtiene de los valores registrados.</p><div class="formula">UVR = (valor final / valor inicial) − 1<br>Compuesta: (1 + índice)(1 + margen) − 1<br>Aditiva: índice + margen</div></section>
+              <section><h3>Anualidades vencidas y anticipadas</h3><p>En la anticipada, cada pago ocurre al inicio del periodo; el factor de la vencida se multiplica por (1 + i).</p><div class="formula">VP = A[1 − (1 + i)^−n] / i<br>VF = A[(1 + i)^n − 1] / i</div></section>
+              <section><h3>Perpetuidad</h3><p>Perpetuidad uniforme vencida, sin crecimiento. El pago y la tasa deben compartir periodo.</p><div class="formula">VP = A / i<br>A = VP · i</div></section>
+              <section><h3>Uso básico</h3><ul><li>Selecciona la operación e indica la periodicidad de tasa, cuotas y periodos.</li><li>Escribe los montos en COP y las tasas como porcentajes; usa punto decimal en los campos numéricos (por ejemplo, 1.5 para 1,5%).</li><li>Pulsa Calcular. El resultado identifica la variable y conserva sus unidades.</li><li>En Validaciones puedes cargar cada prueba en la calculadora; la matriz compara los cinco resultados.</li></ul></section>
+              <section><h3>Unidades y alcance</h3><ul><li>Los montos se presentan en pesos colombianos (COP).</li><li>La tasa del índice se ingresa efectiva según su periodicidad y se convierte a E.A.; el margen se interpreta como E.A.</li><li>En UVR, puedes calcular la variación con los valores inicial y final del periodo declarado.</li><li>El método compuesto o aditivo debe coincidir con la convención trabajada para DTF, IBR, IPC o UVR.</li><li>Los cálculos no incluyen impuestos, comisiones, inflación adicional ni redondeos de cuotas.</li></ul></section>
+            </div>
+          </section>
+        </section>
+      </div>
+      <footer><span>MODELO DETERMINÍSTICO · RESULTADOS SIN REDONDEO INTERMEDIO</span><span>VALIDAR CON LAS CONVENCIONES DEL CURSO</span></footer>
+    </main>
+  </div>
+
+  <script>
+    'use strict';
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => [...document.querySelectorAll(selector)];
+    const form = $('#calc-form');
+    const operation = $('#operation');
+    const errorBox = $('#error-message');
+    const resultBox = $('#result');
+    const EPSILON = 1e-12;
+
+    function number(id, label, options = {}) {
+      const raw = document.getElementById(id).value;
+      if (raw === '') throw new Error(`Ingresa ${label.toLowerCase()}.`);
+      const value = Number(raw);
+      if (!Number.isFinite(value)) throw new Error(`${label} debe ser un número válido.`);
+      if (options.min !== undefined && value < options.min) throw new Error(`${label} debe ser ${options.min === 0 ? 'mayor o igual a cero' : `mayor o igual a ${options.min}`}.`);
+      if (options.positive && value <= 0) throw new Error(`${label} debe ser mayor que cero.`);
+      return value;
+    }
+
+    function requiredRate(id, label = 'La tasa') {
+      return number(id, label, { min: 0 }) / 100;
+    }
+
+    function fmt(value, digits = 2) {
+      return new Intl.NumberFormat('es-CO', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+    }
+
+    function fmtRate(value, digits = 6) {
+      return `${fmt(value * 100, digits)}%`;
+    }
+
+    const PERIOD_LABELS = {
+      '1': ['año', 'años'],
+      '2': ['semestre', 'semestres'],
+      '4': ['trimestre', 'trimestres'],
+      '6': ['bimestre', 'bimestres'],
+      '12': ['mes', 'meses'],
+      '24': ['quincena', 'quincenas'],
+      '365': ['día', 'días']
+    };
+
+    function periodLabels() {
+      return PERIOD_LABELS[$('#periodicity').value];
+    }
+
+    function periods(id = 'periods') {
+      const n = number(id, 'el número de periodos', { min: 1 });
+      if (!Number.isInteger(n)) throw new Error('El número de periodos debe ser entero.');
+      return n;
+    }
+
+    function annualFactor(rate, n, kind, timing) {
+      if (Math.abs(rate) < EPSILON) return kind === 'pv' ? n : n;
+      const ordinary = kind === 'pv'
+        ? -Math.expm1(-n * Math.log1p(rate)) / rate
+        : Math.expm1(n * Math.log1p(rate)) / rate;
+      return timing === 'due' ? ordinary * (1 + rate) : ordinary;
+    }
+
+    function solveAnnuity(kind) {
+      const rate = requiredRate('rate');
+      const timing = $('input[name="timing"]:checked').value;
+      const multiplier = timing === 'due' ? 1 + rate : 1;
+      if (kind === 'pv') {
+        const payment = number('annuity-payment-pv', 'la cuota', { min: 0 });
+        const n = periods('annuity-periods-pv');
+        const [period] = periodLabels();
+        return { value: payment * annualFactor(rate, n, 'pv', timing), label: `Valor presente · anualidad ${timing === 'due' ? 'anticipada' : 'vencida'}`, unit: 'COP', detail: `VP = A × factor de valor presente. A = ${fmt(payment)} COP por ${period}; i = ${fmtRate(rate)} por ${period}; n = ${n} ${period}.` };
+      }
+      if (kind === 'fv') {
+        const payment = number('payment', 'la cuota', { min: 0 });
+        const n = periods();
+        const [period] = periodLabels();
+        return { value: payment * annualFactor(rate, n, 'fv', timing), label: `Valor futuro · anualidad ${timing === 'due' ? 'anticipada' : 'vencida'}`, unit: 'COP', detail: `VF = A × factor de valor futuro. A = ${fmt(payment)} COP por ${period}; i = ${fmtRate(rate)} por ${period}; n = ${n} ${period}.` };
+      }
+      if (kind === 'payment') {
+        const target = number('amount', 'el valor presente', { min: 0 });
+        const n = periods();
+        const factor = annualFactor(rate, n, 'pv', timing);
+        if (!(factor > 0)) throw new Error('No es posible despejar la cuota con estos datos.');
+        const [period] = periodLabels();
+        return { value: target / factor, label: `Cuota periódica · anualidad ${timing === 'due' ? 'anticipada' : 'vencida'}`, unit: `COP / ${period}`, detail: `A = VP / factor de valor presente. VP = ${fmt(target)} COP; i = ${fmtRate(rate)} por ${period}; n = ${n} ${period}.` };
+      }
+      const payment = number('payment', 'la cuota', { positive: true });
+      const target = number('annuity-target', 'el valor objetivo', { positive: true });
+      const targetKind = $('#target-kind').value;
+      const standardTarget = target / multiplier;
+      let n;
+      if (Math.abs(rate) < EPSILON) {
+        n = standardTarget / payment;
+      } else if (targetKind === 'pv') {
+        const base = 1 - standardTarget * rate / payment;
+        if (base <= 0 || base >= 1) throw new Error('No existe un número positivo de periodos para el valor presente indicado.');
+        n = -Math.log(base) / Math.log1p(rate);
+      } else {
+        const base = 1 + standardTarget * rate / payment;
+        if (base <= 1) throw new Error('El valor futuro debe superar el total de cuotas sin rendimiento.');
+        n = Math.log(base) / Math.log1p(rate);
+      }
+      if (!Number.isFinite(n) || n <= 0) throw new Error('No se obtuvo un número positivo de periodos.');
+      const [, plural] = periodLabels();
+      return { value: n, label: `Número de periodos · valor ${targetKind === 'pv' ? 'presente' : 'futuro'} objetivo`, unit: plural, precision: 6, detail: `n = ${fmt(n, 6)} ${plural} (puede ser fraccionario al despejar). A = ${fmt(payment)} COP; objetivo = ${fmt(target)} COP; i = ${fmtRate(rate)} por periodo; modalidad ${timing === 'due' ? 'anticipada' : 'vencida'}.` };
+    }
+
+    function calculate() {
+      const selected = operation.value;
+      if (selected === 'compound-fv' || selected === 'compound-pv') {
+        const amount = selected === 'compound-fv'
+          ? number('amount', 'el valor presente', { min: 0 })
+          : number('compound-future', 'el valor futuro', { min: 0 });
+        const rate = requiredRate('rate');
+        const n = periods();
+        const factor = Math.exp(n * Math.log1p(rate));
+        const value = selected === 'compound-fv' ? amount * factor : amount / factor;
+        const [period] = periodLabels();
+        return { value, label: selected === 'compound-fv' ? 'Valor futuro' : 'Valor presente', unit: 'COP', detail: `${selected === 'compound-fv' ? 'VF = VP(1 + i)^n' : 'VP = VF / (1 + i)^n'}. i = ${fmtRate(rate)} por ${period}; n = ${n} ${period}.` };
+      }
+      if (selected === 'compound-rate') {
+        const present = number('amount', 'el valor presente', { positive: true });
+        const future = number('compound-future', 'el valor futuro', { positive: true });
+        const n = periods();
+        const rate = Math.expm1(Math.log(future / present) / n);
+        if (!Number.isFinite(rate) || rate < 0) throw new Error('El valor futuro debe ser mayor o igual al valor presente para obtener una tasa no negativa.');
+        const [period] = periodLabels();
+        return { value: rate, percent: true, label: `Tasa efectiva por ${period}`, unit: `% efectiva / ${period}`, detail: `i = (VF / VP)^(1/n) − 1. VP = ${fmt(present)} COP; VF = ${fmt(future)} COP; n = ${n} ${period}.` };
+      }
+      if (selected === 'compound-periods') {
+        const present = number('amount', 'el valor presente', { positive: true });
+        const future = number('compound-future', 'el valor futuro', { positive: true });
+        const rate = requiredRate('rate');
+        if (Math.abs(rate) < EPSILON) {
+          if (Math.abs(future - present) <= Math.max(0.005, present * 1e-12)) throw new Error('Con tasa cero y VP igual a VF, el número de periodos no se puede determinar.');
+          throw new Error('Con tasa cero, el valor presente y el valor futuro deben coincidir.');
+        }
+        const n = Math.log(future / present) / Math.log1p(rate);
+        if (!Number.isFinite(n) || n <= 0) throw new Error('Los montos y la tasa no producen un número positivo de periodos.');
+        const [, plural] = periodLabels();
+        return { value: n, label: 'Número de periodos', unit: plural, precision: 6, detail: `n = ln(VF / VP) / ln(1 + i). VP = ${fmt(present)} COP; VF = ${fmt(future)} COP; i = ${fmtRate(rate)} por periodo. El resultado puede ser fraccionario.` };
+      }
+      if (selected.startsWith('annuity-')) return solveAnnuity(selected.slice('annuity-'.length));
+      if (selected.startsWith('perpetuity-')) {
+        const rate = requiredRate('perpetuity-rate', 'La tasa de la perpetuidad');
+        if (rate <= 0) throw new Error('La tasa de la perpetuidad debe ser mayor que cero.');
+        if (selected === 'perpetuity-capital') {
+          const payment = number('perpetuity-payment', 'el pago perpetuo', { min: 0 });
+          const [period] = periodLabels();
+          return { value: payment / rate, label: 'Capital requerido · perpetuidad vencida', unit: 'COP', detail: `VP = A / i. A = ${fmt(payment)} COP por ${period}; i = ${fmtRate(rate)} por ${period}.` };
+        }
+        const capital = number('capital', 'el capital disponible', { min: 0 });
+        const [period] = periodLabels();
+        return { value: capital * rate, label: 'Pago sostenible · perpetuidad vencida', unit: `COP / ${period}`, detail: `A = VP × i. VP = ${fmt(capital)} COP; i = ${fmtRate(rate)} por ${period}.` };
+      }
+      if (selected === 'rate-convert') {
+        const inputRate = number('rate-input', 'la tasa de origen') / 100;
+        const kind = $('#rate-kind').value;
+        const sourceFrequency = Number($('#source-frequency').value);
+        const targetFrequency = Number($('#target-frequency').value);
+        const effectiveAnnual = kind === 'ea' ? inputRate : Math.expm1(sourceFrequency * Math.log1p(inputRate / sourceFrequency));
+        if (effectiveAnnual <= -1) throw new Error('La tasa origina un factor anual no positivo; revisa el valor y la convención.');
+        const targetPeriodic = Math.expm1(Math.log1p(effectiveAnnual) / targetFrequency);
+        const outputKind = $('#rate-output-kind').value;
+        const value = outputKind === 'ea' ? effectiveAnnual : outputKind === 'na' ? targetPeriodic * targetFrequency : targetPeriodic;
+        const label = outputKind === 'ea' ? 'Tasa efectiva anual equivalente' : outputKind === 'na' ? 'Tasa nominal anual equivalente' : 'Tasa efectiva equivalente por periodo';
+        const unit = outputKind === 'ea' ? '% EA' : outputKind === 'na' ? `% NA · ${targetFrequency} periodos/año` : `% efectiva · ${targetFrequency} periodos/año`;
+        return { value, percent: true, label, unit, detail: `Origen: ${fmt(inputRate * 100, 6)}% ${kind === 'ea' ? 'EA' : `nominal anual, ${sourceFrequency} capitalizaciones/año`}. Equivalente: ${fmt(effectiveAnnual * 100, 6)}% EA. Destino: ${targetFrequency} periodos/año.` };
+      }
+      if (selected === 'rate-index') {
+        const indexType = $('#index-type').value;
+        const hasUvrValues = indexType === 'UVR' && $('#uvr-start').value !== '' && $('#uvr-end').value !== '';
+        let indexPeriod;
+        if (hasUvrValues) {
+          const start = number('uvr-start', 'la UVR inicial', { positive: true });
+          const end = number('uvr-end', 'la UVR final', { positive: true });
+          indexPeriod = end / start - 1;
+        } else indexPeriod = number('index-rate', 'la tasa efectiva del índice') / 100;
+        if (indexPeriod <= -1) throw new Error('La variación del índice debe ser mayor que -100% por periodo.');
+        const baseFrequency = Number($('#index-base-frequency').value);
+        const index = Math.expm1(baseFrequency * Math.log1p(indexPeriod));
+        const spread = number('spread', 'el margen o spread') / 100;
+        const method = $('#index-method').value;
+        const effectiveAnnual = method === 'compound' ? (1 + index) * (1 + spread) - 1 : index + spread;
+        if (effectiveAnnual <= -1) throw new Error('La tasa indexada debe ser mayor que -100% EA.');
+        const frequency = Number($('#index-frequency').value);
+        const periodic = Math.expm1(Math.log1p(effectiveAnnual) / frequency);
+        return { value: periodic, percent: true, label: `Tasa indexada ${indexType} equivalente`, unit: `% efectiva · ${frequency} periodos/año`, detail: `Índice = ${fmtRate(indexPeriod)} por periodo de origen (${baseFrequency} periodos/año), equivalente a ${fmtRate(index)} EA; margen = ${fmtRate(spread)} EA; método ${method === 'compound' ? 'compuesto' : 'aditivo'}; resultado = ${fmtRate(effectiveAnnual)} EA = ${fmtRate(periodic)} por periodo. ${hasUvrValues ? `Variación UVR calculada entre ${fmt(Number($('#uvr-start').value), 4)} y ${fmt(Number($('#uvr-end').value), 4)}.` : `Tasa de ${indexType} ingresada con periodicidad efectiva declarada.`}` };
+      }
+      throw new Error('Selecciona una operación válida.');
+    }
+
+    function updateFields() {
+      const selected = operation.value;
+      $$('[data-for]').forEach((field) => field.classList.toggle('hidden', !field.dataset.for.split(' ').includes(selected)));
+      const [singular, plural] = periodLabels();
+      $('#rate-unit').textContent = `% / ${singular}`;
+      $('#periods-unit').textContent = plural;
+      $('#periods-pv-unit').textContent = plural;
+      $('#payment-unit').textContent = `COP / ${singular}`;
+      $('#payment-pv-unit').textContent = `COP / ${singular}`;
+      $('#perpetuity-payment-unit').textContent = `COP / ${singular}`;
+      $('#perpetuity-rate-unit').textContent = `% / ${singular}`;
+      $('#amount').closest('.field').querySelector('label').innerHTML = selected === 'compound-pv' ? 'Valor futuro <span class="hint">VF · COP</span>' : 'Valor presente <span class="hint">VP · COP</span>';
+      $('#uvr-fields').classList.toggle('hidden', selected !== 'rate-index' || $('#index-type').value !== 'UVR');
+      $('#uvr-end-field').classList.toggle('hidden', selected !== 'rate-index' || $('#index-type').value !== 'UVR');
+      resultBox.classList.remove('show');
+      errorBox.classList.remove('show');
+    }
+
+    operation.addEventListener('change', updateFields);
+    $('#periodicity').addEventListener('change', updateFields);
+    $('#index-type').addEventListener('change', updateFields);
+    form.addEventListener('reset', () => requestAnimationFrame(() => { updateFields(); }));
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      errorBox.classList.remove('show');
+      resultBox.classList.remove('show');
+      try {
+        const result = calculate();
+        if (!Number.isFinite(result.value)) throw new Error('El resultado no es finito; revisa los datos ingresados.');
+        $('#result-label').textContent = result.label;
+        $('#result-value').textContent = result.percent ? fmtRate(result.value, 8) : fmt(result.value, result.precision ?? 2);
+        $('#result-unit').textContent = result.percent ? result.unit : result.unit;
+        $('#result-detail').textContent = result.detail;
+        resultBox.classList.add('show');
+      } catch (error) {
+        errorBox.textContent = error.message;
+        errorBox.classList.add('show');
+      }
+    });
+
+    $$('.nav-item').forEach((button) => button.addEventListener('click', () => {
+      $$('.nav-item').forEach((item) => item.classList.toggle('active', item === button));
+      $$('.view').forEach((view) => view.classList.toggle('active', view.id === `${button.dataset.view}-view`));
+    }));
+
+    const validations = [
+      { title: 'Interés compuesto · valor futuro', module: 'Interés compuesto', statement: 'Se invierten $10.000.000 al 1,5% efectivo mensual durante 24 meses.', data: 'VP = $10.000.000 COP; i = 1,5% efectivo mensual; n = 24 meses.', unknown: 'Valor futuro (VF).', formula: 'VF = 10.000.000 × (1 + 0,015)^24', calculate: () => 10000000 * Math.pow(1.015, 24), reference: 14295028.119290218, independent: 'VF = VP(1 + i)^n', inputs: { amount: 10000000, rate: 1.5, periods: 24, periodicity: 12 }, operation: 'compound-fv', unit: 'COP' },
+      { title: 'Conversión e indexación · UVR', module: 'Conversión e indexación de tasas', statement: 'La UVR pasa de 350 a 364 en un año. Se reconoce un margen compuesto de 3% EA.', data: 'UVR inicial = 350; UVR final = 364; variación = 4% EA; margen = 3% EA; salida mensual.', unknown: 'Tasa efectiva mensual indexada.', formula: 'UVR = 364/350 − 1 = 4%; EA = (1,04)(1,03) − 1 = 7,12%; iₘ = (1 + EA)^(1/12) − 1', calculate: () => { const ea = (364 / 350) * 1.03 - 1; return Math.pow(1 + ea, 1 / 12) - 1; }, reference: 0.00574808347996969, independent: 'iₘ = (1 + 7,12%)^(1/12) − 1', inputs: { indexType: 'UVR', uvrStart: 350, uvrEnd: 364, spread: 3, method: 'compound', frequency: 12, indexBaseFrequency: 1 }, operation: 'rate-index', unit: '% efectiva mensual', percent: true },
+      { title: 'Anualidad vencida · valor futuro', module: 'Anualidad vencida', statement: 'Se depositan $500.000 al final de cada mes durante 12 meses, al 2% efectivo mensual.', data: 'A = $500.000 COP por mes; i = 2% efectivo mensual; n = 12 meses; pagos al final.', unknown: 'Valor futuro (VF).', formula: 'VF = 500.000 × [(1 + 0,02)^12 − 1] / 0,02', calculate: () => 500000 * (Math.pow(1.02, 12) - 1) / 0.02, reference: 6706044.864063637, independent: 'VF = A[(1 + i)^n − 1] / i', inputs: { amount: 0, rate: 2, payment: 500000, periods: 12, timing: 'ordinary', periodicity: 12 }, operation: 'annuity-fv', unit: 'COP' },
+      { title: 'Anualidad anticipada · valor presente', module: 'Anualidad anticipada', statement: 'Se reciben 12 cuotas mensuales anticipadas de $300.000, con tasa de 1% efectivo mensual.', data: 'A = $300.000 COP por mes; i = 1% efectivo mensual; n = 12 meses; pagos al inicio.', unknown: 'Valor presente (VP).', formula: 'VP = 300.000 × [1 − (1 + 0,01)^−12] / 0,01 × (1 + 0,01)', calculate: () => 300000 * (1 - Math.pow(1.01, -12)) / 0.01 * 1.01, reference: 3410288.474465846, independent: 'VP anticipada = A[1 − (1 + i)^−n] / i × (1 + i)', inputs: { amount: 0, rate: 1, paymentPv: 300000, periodsPv: 12, timing: 'due', periodicity: 12 }, operation: 'annuity-pv', unit: 'COP' },
+      { title: 'Perpetuidad · pago sostenible', module: 'Anualidad perpetua', statement: 'Un capital de $20.000.000 financia una perpetuidad vencida con tasa efectiva trimestral de 2%.', data: 'VP = $20.000.000 COP; i = 2% efectivo trimestral.', unknown: 'Pago trimestral sostenible (A).', formula: 'A = 20.000.000 × 0,02', calculate: () => 20000000 * 0.02, reference: 400000, independent: 'A = VP × i', inputs: { capital: 20000000, rate: 2, periodicity: 4 }, operation: 'perpetuity-payment', unit: 'COP / trimestre' }
+    ];
+
+    function renderValidations() {
+      const list = $('#validation-list');
+      const matrix = $('#validation-matrix');
+      let passed = 0;
+      validations.forEach((test, index) => {
+        const calculated = test.calculate();
+        const difference = Math.abs(calculated - test.reference);
+        const tolerance = test.percent
+          ? Math.max(5e-11, Math.abs(test.reference) * 1e-10)
+          : Math.max(0.005, Math.abs(test.reference) * 1e-10);
+        const valid = difference <= tolerance;
+        if (valid) passed++;
+        const result = test.percent ? fmtRate(calculated, 8) : `${fmt(calculated)} COP`;
+        const independent = test.percent ? fmtRate(test.reference, 8) : `${fmt(test.reference)} COP`;
+        const item = document.createElement('article');
+        item.className = 'validation-item';
+        item.setAttribute('role', 'button');
+        item.tabIndex = 0;
+        item.setAttribute('aria-label', `Cargar prueba ${index + 1}: ${test.title}`);
+        item.innerHTML = `<div class="validation-num">0${index + 1}</div><div><h3>${test.title}</h3><p><strong>Enunciado:</strong> ${test.statement}<br><strong>Datos:</strong> ${test.data}<br><strong>Incógnita:</strong> ${test.unknown}<br><strong>Desarrollo independiente:</strong> <span class="hint">${test.formula}</span><br><strong>Procedimiento:</strong> ${test.independent}</p><div class="validation-values"><div><span>Resultado independiente</span><strong>${independent}</strong></div><div><span>Resultado calculadora</span><strong>${result}</strong></div></div></div><div class="pass">${valid ? 'VALIDADO' : 'REVISAR'}</div>`;
+        list.append(item);
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="num">${index + 1}</td><td>${test.module}</td><td class="num">${independent}</td><td class="num">${result}</td><td class="num">${test.percent ? fmtRate(difference, 8) : fmt(difference)}${test.percent ? '' : ' COP'}</td><td>${valid ? 'Sí' : 'No'}</td>`;
+        matrix.append(row);
+      });
+      $('#validation-status').textContent = `${passed} / 5 VALIDADAS`;
+      $('#validation-count').textContent = `${passed}/5`;
+    }
+
+    function loadValidation(test) {
+      operation.value = test.operation;
+      $('#index-type').value = test.inputs.indexType || 'DTF';
+      $('#amount').value = test.inputs.amount ?? '';
+      $('#rate').value = test.inputs.rate ?? '';
+      $('#periods').value = test.inputs.periods ?? '';
+      $('#payment').value = test.inputs.payment ?? '';
+      $('#annuity-payment-pv').value = test.inputs.paymentPv ?? '';
+      $('#annuity-periods-pv').value = test.inputs.periodsPv ?? '';
+      $('#capital').value = test.inputs.capital ?? '';
+      $('#perpetuity-rate').value = test.inputs.rate ?? '';
+      $('#uvr-start').value = test.inputs.uvrStart ?? '';
+      $('#uvr-end').value = test.inputs.uvrEnd ?? '';
+      $('#index-rate').value = test.inputs.indexType === 'UVR' ? '' : test.inputs.indexRate ?? '';
+      $('#spread').value = test.inputs.spread ?? '';
+      $('#index-method').value = test.inputs.method ?? 'compound';
+      $('#index-frequency').value = test.inputs.frequency ?? '12';
+      $('#index-base-frequency').value = test.inputs.indexBaseFrequency ?? '1';
+      $('#periodicity').value = test.inputs.periodicity ?? '12';
+      if (test.inputs.timing) $(`input[name="timing"][value="${test.inputs.timing}"]`).checked = true;
+      updateFields();
+      $$('.nav-item').find((item) => item.dataset.view === 'calculator').click();
+      form.requestSubmit();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    $('#validation-list').addEventListener('click', (event) => {
+      const item = event.target.closest('.validation-item');
+      if (item) loadValidation(validations[Number(item.querySelector('.validation-num').textContent) - 1]);
+    });
+    $('#validation-list').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && event.target.closest('.validation-item')) {
+        const item = event.target.closest('.validation-item');
+        loadValidation(validations[Number(item.querySelector('.validation-num').textContent) - 1]);
+      }
+    });
+
+    renderValidations();
+    updateFields();
+  </script>
+</body>
+</html>
